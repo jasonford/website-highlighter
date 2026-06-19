@@ -1,4 +1,4 @@
-function rangeFromTextContentOffsets(root, start, end) {
+export default function rangeFromTextContentOffsets(root, start, end) {
   const haystack = root.textContent ?? "";
 
   if (

@@ -5,7 +5,7 @@ export default function bestMatch(query, source) {
   let match
 
   for (const m of matches) {
-    if (m === null || m.distance < match.distance) {
+    if (match === undefined || m.distance < match.distance) {
       match = m
     }
   }

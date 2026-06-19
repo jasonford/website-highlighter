@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DOM Fuzzy Highlighter Test</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #f7f7f4;
+        color: #1d2527;
+      }
+
+      main {
+        box-sizing: border-box;
+        width: min(920px, 100%);
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      h1 {
+        margin: 0 0 24px;
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        line-height: 1;
+      }
+
+      form {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 24px;
+      }
+
+      input,
+      button {
+        border: 1px solid #9aa7a7;
+        border-radius: 6px;
+        font: inherit;
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        padding: 10px 12px;
+        background: #fff;
+        color: #1d2527;
+      }
+
+      button {
+        padding: 10px 14px;
+        background: #24594d;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      article {
+        padding-top: 4px;
+        font-size: 1.05rem;
+      }
+
+      #status {
+        min-height: 1.5em;
+        margin: 0 0 18px;
+        color: #586463;
+      }
+
+      ::highlight(fuzzy-text-match) {
+        background: #f6d85f;
+        color: #111;
+      }
+
+      @media (max-width: 560px) {
+        form {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>DOM Fuzzy Highlighter Test</h1>
+
+      <form id="search-form">
+        <input
+          id="query"
+          name="query"
+          value="custom highlight api"
+          autocomplete="off"
+          aria-label="Search text"
+        />
+        <button type="submit">Highlight</button>
+      </form>
+
+      <p id="status" role="status"></p>
+
+      <article id="fixture">
+        <p>
+          The CSS Custom Highlight API lets JavaScript define ranges and paint
+          them without changing the document's markup. This page imports the
+          local library source through Vite, finds the closest fuzzy substring
+          match in this article, and applies a named browser highlight.
+        </p>
+        <p>
+          Try misspellings like "custm hilite api", "fuzzy substrng", or
+          "document markp" to check that the matching logic still finds useful
+          text ranges during development.
+        </p>
+      </article>
+    </main>
+
+    <script type="module">
+      import DOMHighlighter from './index.js'
+
+      const form = document.querySelector('#search-form')
+      const query = document.querySelector('#query')
+      const fixture = document.querySelector('#fixture')
+      const status = document.querySelector('#status')
+
+      function runHighlight() {
+        if (!('highlights' in CSS) || !('Highlight' in window)) {
+          status.textContent = 'This browser does not support the CSS Custom Highlight API.'
+          return
+        }
+
+        try {
+          const range = DOMHighlighter(query.value, fixture)
+          status.textContent = `Matched: "${range.toString()}"`
+        } catch (error) {
+          CSS.highlights.delete('fuzzy-text-match')
+          status.textContent = error.message
+        }
+      }
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault()
+        runHighlight()
+      })
+
+      runHighlight()
+    </script>
+  </body>
+</html>
