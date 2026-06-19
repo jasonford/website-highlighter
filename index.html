@@ -64,13 +64,23 @@
         font-size: 1.05rem;
       }
 
+      iframe {
+        box-sizing: border-box;
+        width: 100%;
+        min-height: 260px;
+        margin-top: 28px;
+        border: 1px solid #9aa7a7;
+        border-radius: 8px;
+        background: #fff;
+      }
+
       #status {
         min-height: 1.5em;
         margin: 0 0 18px;
         color: #586463;
       }
 
-      ::highlight(fuzzy-text-match) {
+      ::highlight(dom-highlight) {
         background: #f6d85f;
         color: #111;
       }
@@ -112,14 +122,67 @@
           text ranges during development.
         </p>
       </article>
+
+      <iframe
+        id="fixture-frame"
+        title="Iframe highlight fixture"
+        srcdoc='
+          <!doctype html>
+          <html lang="en">
+            <head>
+              <meta charset="UTF-8" />
+              <style>
+                :root {
+                  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                  line-height: 1.5;
+                }
+
+                body {
+                  margin: 0;
+                  padding: 22px;
+                  color: #1d2527;
+                }
+
+                h2 {
+                  margin: 0 0 12px;
+                  font-size: 1.25rem;
+                }
+
+                p {
+                  margin: 0 0 12px;
+                }
+
+                ::highlight(dom-highlight) {
+                  background: #f6d85f;
+                  color: #111;
+                }
+              </style>
+            </head>
+            <body>
+              <h2>Iframe Fixture</h2>
+              <p>
+                This iframe imports the library and waits for a dom-highlight
+                message from the parent page before highlighting its own
+                document body.
+              </p>
+              <p>
+                Search for phrases like iframe imports, parent page, or own
+                document body to test cross-document highlighting.
+              </p>
+              <script type="module" src="/index.js"></script>
+            </body>
+          </html>
+        '
+      ></iframe>
     </main>
 
     <script type="module">
-      import DOMHighlighter from './index.js'
+      import DOMHighlighter, { highlightInIframe } from './index.js'
 
       const form = document.querySelector('#search-form')
       const query = document.querySelector('#query')
       const fixture = document.querySelector('#fixture')
+      const fixtureFrame = document.querySelector('#fixture-frame')
       const status = document.querySelector('#status')
 
       function runHighlight() {
@@ -130,9 +193,10 @@
 
         try {
           const range = DOMHighlighter(query.value, fixture)
+          highlightInIframe(fixtureFrame, query.value)
           status.textContent = `Matched: "${range.toString()}"`
         } catch (error) {
-          CSS.highlights.delete('fuzzy-text-match')
+          CSS.highlights.delete('dom-highlight')
           status.textContent = error.message
         }
       }
@@ -141,6 +205,8 @@
         event.preventDefault()
         runHighlight()
       })
+
+      fixtureFrame.addEventListener('load', runHighlight)
 
       runHighlight()
     </script>

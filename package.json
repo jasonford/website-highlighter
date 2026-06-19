@@ -1,5 +1,5 @@
 {
-  "name": "dom-fuzzy-highlighter",
+  "name": "dom-highlighter",
   "version": "0.0.0",
   "description": "Fuzzy text matching and highlighting for DOM content.",
   "type": "module",
@@ -21,5 +21,14 @@
   },
   "devDependencies": {
     "vite": "^7.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ol-c/dom-highlighter.git"
+  },
+  "author": "Jason Ford",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ol-c/dom-highlighter/issues"
+  },
 }

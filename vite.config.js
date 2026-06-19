@@ -7,6 +7,11 @@ export default defineConfig({
       name: 'DOMFuzzyHighlighter',
       fileName: 'dom-fuzzy-highlighter',
       formats: ['es', 'umd']
+    },
+    rollupOptions: {
+      output: {
+        exports: 'named'
+      }
     }
   }
 })
