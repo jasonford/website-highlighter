@@ -3,7 +3,7 @@ import rangeFromTextContentOffsets from './range-from-offsets.js'
 
 const HIGHLIGHT_NAME = 'dom-highlight'
 
-export default function DOMHighlighter(text, root=document.body) {
+export default function DOMTextHighlight(text, root=document.body) {
   const haystack = root.textContent ?? ''
 
   const { start, end } = bestMatch(text, haystack)
@@ -37,6 +37,6 @@ if (typeof window !== 'undefined') {
       return
     }
 
-    DOMHighlighter(event.data.text, document.body)
+    DOMTextHighlight(event.data.text, document.body)
   })
 }

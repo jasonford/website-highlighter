@@ -1,14 +1,14 @@
 {
-  "name": "dom-highlighter",
+  "name": "dom-text-highlight",
   "version": "0.0.0",
   "description": "Fuzzy text matching and highlighting for DOM content.",
   "type": "module",
-  "main": "./dist/dom-fuzzy-highlighter.umd.cjs",
-  "module": "./dist/dom-fuzzy-highlighter.js",
+  "main": "./dist/dom-text-highlight.umd.cjs",
+  "module": "./dist/dom-text-highlight.js",
   "exports": {
     ".": {
-      "import": "./dist/dom-fuzzy-highlighter.js",
-      "require": "./dist/dom-fuzzy-highlighter.umd.cjs"
+      "import": "./dist/dom-text-highlight.js",
+      "require": "./dist/dom-text-highlight.umd.cjs"
     }
   },
   "files": [
@@ -24,11 +24,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/ol-c/dom-highlighter.git"
+    "url": "git+ssh://git@github.com/ol-c/dom-text-highlight.git"
   },
   "author": "Jason Ford",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ol-c/dom-highlighter/issues"
-  },
+    "url": "https://github.com/ol-c/dom-text-highlight/issues"
+  }
 }

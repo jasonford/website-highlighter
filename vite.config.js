@@ -4,8 +4,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: 'index.js',
-      name: 'DOMFuzzyHighlighter',
-      fileName: 'dom-fuzzy-highlighter',
+      name: 'DOMTextHighlight',
+      fileName: 'dom-text-highlight',
       formats: ['es', 'umd']
     },
     rollupOptions: {
