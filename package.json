@@ -1,6 +1,6 @@
 {
   "name": "dom-text-highlight",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Fuzzy text matching and highlighting for DOM content.",
   "type": "module",
   "main": "./dist/dom-text-highlight.umd.cjs",
