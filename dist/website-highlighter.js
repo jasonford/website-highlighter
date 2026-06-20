@@ -1,4 +1,4 @@
-class w {
+class y {
   /**
    * Calculates the Levenshtein distance for all substrings and returns their
    * distance and insertion-deletion offset.
@@ -8,15 +8,15 @@ class w {
    * 
    * @return {array} Array of all substring matches in pairs [distance, offset]
    */
-  getEditDistances(t, o) {
-    var n = new Array(o.length + 1).fill([0, 0]);
-    for (let s = 0; s < t.length; s++) {
-      let r = [[s + 1, 0]];
-      for (let e = 0; e < o.length; e++) {
-        let i = t[s] != o[e], a = n[e + 1][0] + 1, h = r[e][0] + 1, g = n[e][0] + i, f = Math.min(a, Math.min(h, g)), c = [f, n[e][1]];
-        a === f ? c[1] = n[e + 1][1] - 1 : h === f && (c[1] = r[e][1] + 1), r.push(c);
+  getEditDistances(e, t) {
+    var n = new Array(t.length + 1).fill([0, 0]);
+    for (let s = 0; s < e.length; s++) {
+      let l = [[s + 1, 0]];
+      for (let o = 0; o < t.length; o++) {
+        let r = e[s] != t[o], a = n[o + 1][0] + 1, h = l[o][0] + 1, d = n[o][0] + r, u = Math.min(a, Math.min(h, d)), c = [u, n[o][1]];
+        a === u ? c[1] = n[o + 1][1] - 1 : h === u && (c[1] = l[o][1] + 1), l.push(c);
       }
-      n = r;
+      n = l;
     }
     return n;
   }
@@ -29,79 +29,132 @@ class w {
    * 
    * @return {array} Array of best substring matches.
    */
-  getMatches(t, o) {
-    let n = this.getEditDistances(t, o), s = [0], r = n[0][0];
-    for (let i = 1; i < n.length; i++) {
-      let a = n[i][0];
-      a < r ? (s = [i], r = a) : a == r && s.push(i);
+  getMatches(e, t) {
+    let n = this.getEditDistances(e, t), s = [0], l = n[0][0];
+    for (let r = 1; r < n.length; r++) {
+      let a = n[r][0];
+      a < l ? (s = [r], l = a) : a == l && s.push(r);
     }
-    let e = [];
-    for (let i of s) {
-      let a = n[i], h = {
+    let o = [];
+    for (let r of s) {
+      let a = n[r], h = {
         distance: a[0],
-        start: i - t.length - a[1],
+        start: r - e.length - a[1],
         //simplification of startPos = endPos − (needleLength + insertions − deletions)
-        end: i
+        end: r
       };
-      e.push(h);
+      o.push(h);
     }
-    return e;
+    return o;
   }
 }
-function m(l, t) {
-  return new w().getMatches(l, t);
+function I(i, e) {
+  return new y().getMatches(i, e);
 }
-function p(l, t) {
-  const o = m(l, t);
+function M(i, e) {
+  const t = I(i, e);
   let n;
-  for (const i of o)
-    (n === void 0 || i.distance < n.distance) && (n = i);
-  const s = Math.max(n.start, 0), r = Math.min(Math.max(n.end, s), t.length);
-  return { value: t.slice(s, r), start: s, end: r };
+  for (const r of t)
+    (n === void 0 || r.distance < n.distance) && (n = r);
+  const s = Math.max(n.start, 0), l = Math.min(Math.max(n.end, s), e.length);
+  return { value: e.slice(s, l), start: s, end: l, distance: n.distance };
 }
-function x(l, t, o) {
-  const n = l.textContent ?? "";
-  if (!Number.isInteger(t) || !Number.isInteger(o) || t < 0 || t >= o || o > n.length)
+function T(i, e, t) {
+  const n = i.textContent ?? "";
+  if (!Number.isInteger(e) || !Number.isInteger(t) || e < 0 || e >= t || t > n.length)
     throw new RangeError(
-      `Invalid range [${t}, ${o}) for text length ${n.length}`
+      `Invalid range [${e}, ${t}) for text length ${n.length}`
     );
-  const s = l.ownerDocument, r = s.createTreeWalker(
-    l,
+  const s = i.ownerDocument, l = s.createTreeWalker(
+    i,
     s.defaultView.NodeFilter.SHOW_TEXT
   );
-  let e = 0, i = null, a = 0, h = null, g = 0;
-  for (let c = r.nextNode(); c; c = r.nextNode()) {
-    const d = e + c.data.length;
-    if (i === null && t >= e && t < d && (i = c, a = t - e), h === null && o > e && o <= d && (h = c, g = o - e), i && h)
+  let o = 0, r = null, a = 0, h = null, d = 0;
+  for (let c = l.nextNode(); c; c = l.nextNode()) {
+    const g = o + c.data.length;
+    if (r === null && e >= o && e < g && (r = c, a = e - o), h === null && t > o && t <= g && (h = c, d = t - o), r && h)
       break;
-    e = d;
+    o = g;
   }
-  if (!i || !h)
+  if (!r || !h)
     throw new Error(
       "Could not map offsets to the DOM. The DOM may have changed."
     );
-  const f = s.createRange();
-  return f.setStart(i, a), f.setEnd(h, g), f;
+  const u = s.createRange();
+  return u.setStart(r, a), u.setEnd(h, d), u;
 }
-const u = "dom-highlight";
-function M(l, t = document.body) {
-  const o = t.textContent ?? "", { start: n, end: s } = p(l, o), r = x(t, n, s), e = t.ownerDocument?.defaultView ?? window;
-  if (!e.CSS?.highlights || !e.Highlight)
-    throw new Error("This browser does not support the CSS Custom Highlight API.");
-  return e.CSS.highlights.set(u, new e.Highlight(r)), r;
+const f = "website-highlighter", w = `${f}:response`, m = 500;
+let H = 0;
+function S(i) {
+  return new Promise((e) => globalThis.setTimeout(e, i));
 }
-function b(l, t, o = "*") {
-  if (!l?.contentWindow)
-    throw new TypeError("Expected an iframe with a contentWindow");
-  l.contentWindow.postMessage({
-    type: u,
-    text: t
-  }, o);
+function b(i, e, t) {
+  const n = Math.max(i.length, e.length);
+  return n === 0 ? 1 : (n - t) / n;
 }
-typeof window < "u" && window.addEventListener("message", (l) => {
-  l.data?.type !== u || typeof l.data.text != "string" || M(l.data.text, document.body);
-});
+function p(i, e) {
+  const t = e.textContent ?? "", { start: n, end: s, value: l, distance: o } = M(i, t), r = e.ownerDocument?.defaultView ?? window;
+  if (!r.CSS?.highlights || !r.Highlight) throw new Error("This browser does not support the CSS Custom Highlight API.");
+  return {
+    haystack: t,
+    range: n < s ? T(e, n, s) : null,
+    value: l,
+    view: r,
+    score: b(i, l, o)
+  };
+}
+function E({ range: i, value: e, view: t }) {
+  if (!i) throw new Error("Could not find text to highlight.");
+  return t.CSS.highlights.set(f, new t.Highlight(i)), { range: i, value: e };
+}
+async function x(i, e, t, n, s) {
+  let l = 0;
+  for (; ; ) {
+    const o = p(i, e);
+    if (o.score >= t) return E(o);
+    for (; l < n && (await S(s), l += 1, (e.textContent ?? "") === o.haystack); )
+      ;
+    if (l >= n) throw new Error(`Could not find "${i}" with threshold ${t}. Best match was "${o.value}".`);
+  }
+}
+function C(i, {
+  root: e = document.body,
+  threshold: t = 0,
+  retries: n = 6,
+  retryInterval: s = m
+} = {}) {
+  return t > 0 ? x(i, e, t, n, s) : E(p(i, e));
+}
+function N(i, e, t = "*") {
+  if (!i?.contentWindow) throw new TypeError("Expected an iframe with a contentWindow");
+  const n = `${Date.now()}-${H++}`, s = i.contentWindow;
+  let l;
+  function o() {
+    s.postMessage({
+      type: f,
+      id: n,
+      text: e
+    }, t);
+  }
+  function r(a) {
+    a.source === s && a.data?.type === w && a.data.id === n && (window.clearInterval(l), window.removeEventListener("message", r));
+  }
+  window.addEventListener("message", r), o(), l = window.setInterval(o, m);
+}
+if (typeof window < "u") {
+  let i = function(t) {
+    return t.origin === "null" ? "*" : t.origin;
+  }, e = function(t) {
+    t.source?.postMessage({
+      type: w,
+      id: t.data.id
+    }, i(t));
+  };
+  window.addEventListener("message", (t) => {
+    t.data?.type === f && (e(t), C(t.data.text, { threshold: 0.9 }).catch((n) => console.error(n)));
+  });
+}
 export {
-  M as default,
-  b as highlightInIframe
+  C as default,
+  N as highlightInIframe
 };

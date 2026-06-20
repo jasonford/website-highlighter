@@ -14,5 +14,5 @@ export default function bestMatch(query, source) {
   const end = Math.min(Math.max(match.end, start), source.length)
   const value = source.slice(start, end)
 
-  return { value, start, end }
+  return { value, start, end, distance: match.distance }
 }

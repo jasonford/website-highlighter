@@ -80,7 +80,7 @@
         color: #586463;
       }
 
-      ::highlight(dom-highlight) {
+      ::highlight(website-highlighter) {
         background: #f6d85f;
         color: #111;
       }
@@ -152,7 +152,7 @@
                   margin: 0 0 12px;
                 }
 
-                ::highlight(dom-highlight) {
+                ::highlight(website-highlighter) {
                   background: #f6d85f;
                   color: #111;
                 }
@@ -161,7 +161,7 @@
             <body>
               <h2>Iframe Fixture</h2>
               <p>
-                This iframe imports the library and waits for a dom-highlight
+                This iframe imports the library and waits for a website-highlighter
                 message from the parent page before highlighting its own
                 document body.
               </p>
@@ -192,11 +192,11 @@
         }
 
         try {
-          const range = WebsiteHighlighter(query.value, fixture)
+          const { range } = WebsiteHighlighter(query.value, { root: fixture })
           highlightInIframe(fixtureFrame, query.value)
           status.textContent = `Matched: "${range.toString()}"`
         } catch (error) {
-          CSS.highlights.delete('dom-highlight')
+          CSS.highlights.delete('website-highlighter')
           status.textContent = error.message
         }
       }

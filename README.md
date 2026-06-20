@@ -10,21 +10,24 @@ npm install website-highlighter
 
 ## Basic Usage
 
-Import the default function and pass the text you want to find. The library finds the closest fuzzy match inside the target root and applies a `dom-highlight` CSS highlight.
+Import the default function and pass the text you want to find. The library finds the closest fuzzy match inside the target root and applies a `website-highlighter` CSS highlight.
 
 ```js
 import WebsiteHighlighter from 'website-highlighter'
 
 const article = document.querySelector('article')
-const range = WebsiteHighlighter('custom highlight api', article)
+const { range, value } = WebsiteHighlighter('custom highlight api', {
+  root: article
+})
 
 console.log(range.toString())
+console.log(value)
 ```
 
 Add styles for the highlight name:
 
 ```css
-::highlight(dom-highlight) {
+::highlight(website-highlighter) {
   background: #f6d85f;
   color: #111;
 }
@@ -50,7 +53,7 @@ iframe.addEventListener('load', () => {
 })
 ```
 
-The child iframe must load this module too. Importing it registers the message listener that handles `dom-highlight` messages.
+The child iframe must load this module too. Importing it registers the message listener that handles `website-highlighter` messages.
 
 ```html
 <script type="module">
@@ -66,12 +69,15 @@ highlightInIframe(iframe, 'text inside the iframe', 'https://example.com')
 
 ## API
 
-### `WebsiteHighlighter(text, root)`
+### `WebsiteHighlighter(text, options)`
 
-Finds the best fuzzy match for `text` inside `root`, applies the `dom-highlight` custom highlight, and returns the created `Range`.
+Finds the best fuzzy match for `text`, applies the `website-highlighter` custom highlight, and returns `{ range, value }` or resolves to it when threshold retries are enabled.
 
 - `text`: string to search for.
-- `root`: optional DOM node to search. Defaults to `document.body`.
+- `options.root`: optional DOM node to search. Defaults to `document.body`.
+- `options.threshold`: optional minimum match score from `0` to `1`. When greater than `0`, the function returns a Promise and retries until the threshold is met or retries are exhausted.
+- `options.retries`: optional retry count. Defaults to `6`.
+- `options.retryInterval`: optional retry delay in milliseconds. Defaults to `500`.
 
 ### `highlightInIframe(iframe, text, targetOrigin)`
 
