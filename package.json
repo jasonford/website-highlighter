@@ -24,11 +24,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/ol-c/website-highlighter.git"
+    "url": "git+ssh://git@github.com/jasonford/website-highlighter.git"
   },
   "author": "Jason Ford",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ol-c/website-highlighter/issues"
+    "url": "https://github.com/jasonford/website-highlighter/issues"
   }
 }
