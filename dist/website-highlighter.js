@@ -90,7 +90,7 @@ function M(l, t = document.body) {
     throw new Error("This browser does not support the CSS Custom Highlight API.");
   return e.CSS.highlights.set(u, new e.Highlight(r)), r;
 }
-function y(l, t, o = "*") {
+function b(l, t, o = "*") {
   if (!l?.contentWindow)
     throw new TypeError("Expected an iframe with a contentWindow");
   l.contentWindow.postMessage({
@@ -103,5 +103,5 @@ typeof window < "u" && window.addEventListener("message", (l) => {
 });
 export {
   M as default,
-  y as highlightInIframe
+  b as highlightInIframe
 };

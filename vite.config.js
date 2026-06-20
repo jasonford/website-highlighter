@@ -4,8 +4,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: 'index.js',
-      name: 'DOMTextHighlight',
-      fileName: 'dom-text-highlight',
+      name: 'WebsiteHighlighter',
+      fileName: 'website-highlighter',
       formats: ['es', 'umd']
     },
     rollupOptions: {

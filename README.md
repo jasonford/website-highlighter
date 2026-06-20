@@ -1,11 +1,11 @@
-# dom-text-highlight
+# website-highlighter
 
 Fuzzy text matching and highlighting for DOM content using the CSS Custom Highlight API.
 
 ## Install
 
 ```sh
-npm install dom-text-highlight
+npm install website-highlighter
 ```
 
 ## Basic Usage
@@ -13,10 +13,10 @@ npm install dom-text-highlight
 Import the default function and pass the text you want to find. The library finds the closest fuzzy match inside the target root and applies a `dom-highlight` CSS highlight.
 
 ```js
-import DOMTextHighlight from 'dom-text-highlight'
+import WebsiteHighlighter from 'website-highlighter'
 
 const article = document.querySelector('article')
-const range = DOMTextHighlight('custom highlight api', article)
+const range = WebsiteHighlighter('custom highlight api', article)
 
 console.log(range.toString())
 ```
@@ -33,7 +33,7 @@ Add styles for the highlight name:
 If no root is passed, the library searches `document.body`.
 
 ```js
-DOMTextHighlight('some text on the page')
+WebsiteHighlighter('some text on the page')
 ```
 
 ## Iframe Usage
@@ -41,7 +41,7 @@ DOMTextHighlight('some text on the page')
 The package also exports `highlightInIframe`, which sends a highlight request from a parent page to a child iframe.
 
 ```js
-import { highlightInIframe } from 'dom-text-highlight'
+import { highlightInIframe } from 'website-highlighter'
 
 const iframe = document.querySelector('iframe')
 
@@ -54,7 +54,7 @@ The child iframe must load this module too. Importing it registers the message l
 
 ```html
 <script type="module">
-  import 'dom-text-highlight'
+  import 'website-highlighter'
 </script>
 ```
 
@@ -66,7 +66,7 @@ highlightInIframe(iframe, 'text inside the iframe', 'https://example.com')
 
 ## API
 
-### `DOMTextHighlight(text, root)`
+### `WebsiteHighlighter(text, root)`
 
 Finds the best fuzzy match for `text` inside `root`, applies the `dom-highlight` custom highlight, and returns the created `Range`.
 

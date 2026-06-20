@@ -177,7 +177,7 @@
     </main>
 
     <script type="module">
-      import DOMTextHighlight, { highlightInIframe } from './index.js'
+      import WebsiteHighlighter, { highlightInIframe } from './index.js'
 
       const form = document.querySelector('#search-form')
       const query = document.querySelector('#query')
@@ -192,7 +192,7 @@
         }
 
         try {
-          const range = DOMTextHighlight(query.value, fixture)
+          const range = WebsiteHighlighter(query.value, fixture)
           highlightInIframe(fixtureFrame, query.value)
           status.textContent = `Matched: "${range.toString()}"`
         } catch (error) {
