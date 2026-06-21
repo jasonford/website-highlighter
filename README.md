@@ -16,7 +16,7 @@ Import the default function and pass the text you want to find. The library find
 import WebsiteHighlighter from 'website-highlighter'
 
 const article = document.querySelector('article')
-const { range, value } = WebsiteHighlighter('custom highlight api', {
+const { range, value } = await WebsiteHighlighter('custom highlight api', {
   root: article
 })
 
@@ -36,7 +36,19 @@ Add styles for the highlight name:
 If no root is passed, the library searches `document.body`.
 
 ```js
-WebsiteHighlighter('some text on the page')
+await WebsiteHighlighter('some text on the page')
+```
+
+## CDN Usage
+
+The browser bundle can be loaded from a CDN as a single file. Fuzzy matching uses an inline Blob worker when the browser allows it, so you do not need to host a separate worker script.
+
+```html
+<script type="module">
+  import WebsiteHighlighter from 'https://cdn.example.com/website-highlighter.js'
+
+  await WebsiteHighlighter('some text on the page')
+</script>
 ```
 
 ## Iframe Usage
@@ -71,13 +83,19 @@ highlightInIframe(iframe, 'text inside the iframe', 'https://example.com')
 
 ### `WebsiteHighlighter(text, options)`
 
-Finds the best fuzzy match for `text`, applies the `website-highlighter` custom highlight, and returns `{ range, value }` or resolves to it when threshold retries are enabled.
+Finds the best fuzzy match for `text`, applies the `website-highlighter` custom highlight, and resolves to `{ range, value }`.
 
 - `text`: string to search for.
 - `options.root`: optional DOM node to search. Defaults to `document.body`.
-- `options.threshold`: optional minimum match score from `0` to `1`. When greater than `0`, the function returns a Promise and retries until the threshold is met or retries are exhausted.
+- `options.threshold`: optional minimum match score from `0` to `1`. When greater than `0`, the function retries until the threshold is met or retries are exhausted.
 - `options.retries`: optional retry count. Defaults to `6`.
 - `options.retryInterval`: optional retry delay in milliseconds. Defaults to `500`.
+
+Fuzzy matching runs in a worker when the browser allows it. If worker creation is unavailable or blocked, the library falls back to synchronous matching on the main thread.
+
+### `getMatcherMode()`
+
+Returns `'worker'` or `'sync'` for the most recent match. This is intended for diagnostics and demos.
 
 ### `highlightInIframe(iframe, text, targetOrigin)`
 

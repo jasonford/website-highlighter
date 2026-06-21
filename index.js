@@ -1,4 +1,4 @@
-import bestMatch from './best-match.js'
+import findBestMatch, { latestMatcherMode } from './worker-matcher.js'
 import rangeFromTextContentOffsets from './range-from-offsets.js'
 
 const HIGHLIGHT_NAME = 'website-highlighter'
@@ -49,12 +49,13 @@ function matchScore(text, value, distance) {
   return (length - distance) / length
 }
 
-function findMatch(text, root) {
+async function findMatch(text, root) {
   const haystack = root.textContent ?? ''
-  const { start, end, value, distance } = bestMatch(text, haystack)
   const view = root.ownerDocument?.defaultView ?? window
 
   if (!view.CSS?.highlights || !view.Highlight) throw new Error('This browser does not support the CSS Custom Highlight API.')
+
+  const { start, end, value, distance } = await findBestMatch(text, haystack)
 
   return {
     haystack,
@@ -77,7 +78,7 @@ async function retryUntilThreshold(text, root, threshold, retries, retryInterval
   let attempt = 0
 
   while (true) {
-    const match = findMatch(text, root)
+    const match = await findMatch(text, root)
 
     if (match.score >= threshold) return applyHighlight(match)
 
@@ -91,7 +92,11 @@ async function retryUntilThreshold(text, root, threshold, retries, retryInterval
   }
 }
 
-export default function WebsiteHighlighter(
+export function getMatcherMode() {
+  return latestMatcherMode()
+}
+
+export default async function WebsiteHighlighter(
   text,
   {
     root=document.body,
@@ -101,7 +106,7 @@ export default function WebsiteHighlighter(
   }={}
 ) {
   if (threshold > 0) return retryUntilThreshold(text, root, threshold, retries, retryInterval)
-  else return applyHighlight(findMatch(text, root))
+  else return applyHighlight(await findMatch(text, root))
 }
 
 export function highlightInIframe(iframe, text, targetOrigin='*') {

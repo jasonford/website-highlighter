@@ -1,4 +1,4 @@
-class M {
+class I {
   /**
    * Calculates the Levenshtein distance for all substrings and returns their
    * distance and insertion-deletion offset.
@@ -9,16 +9,16 @@ class M {
    * @return {array} Array of all substring matches in pairs [distance, offset]
    */
   getEditDistances(e, t) {
-    var n = new Array(t.length + 1).fill([0, 0]);
-    for (let r = 0; r < e.length; r++) {
-      let a = [[r + 1, 0]];
-      for (let o = 0; o < t.length; o++) {
-        let s = e[r] != t[o], l = n[o + 1][0] + 1, c = a[o][0] + 1, d = n[o][0] + s, u = Math.min(l, Math.min(c, d)), h = [u, n[o][1]];
-        l === u ? h[1] = n[o + 1][1] - 1 : c === u && (h[1] = a[o][1] + 1), a.push(h);
+    var r = new Array(t.length + 1).fill([0, 0]);
+    for (let i = 0; i < e.length; i++) {
+      let o = [[i + 1, 0]];
+      for (let s = 0; s < t.length; s++) {
+        let a = e[i] != t[s], l = r[s + 1][0] + 1, c = o[s][0] + 1, g = r[s][0] + a, f = Math.min(l, Math.min(c, g)), d = [f, r[s][1]];
+        l === f ? d[1] = r[s + 1][1] - 1 : c === f && (d[1] = o[s][1] + 1), o.push(d);
       }
-      n = a;
+      r = o;
     }
-    return n;
+    return r;
   }
   /**
    * Search haystack for all instances of needle and returns an array of
@@ -30,149 +30,231 @@ class M {
    * @return {array} Array of best substring matches.
    */
   getMatches(e, t) {
-    let n = this.getEditDistances(e, t), r = [0], a = n[0][0];
-    for (let s = 1; s < n.length; s++) {
-      let l = n[s][0];
-      l < a ? (r = [s], a = l) : l == a && r.push(s);
+    let r = this.getEditDistances(e, t), i = [0], o = r[0][0];
+    for (let a = 1; a < r.length; a++) {
+      let l = r[a][0];
+      l < o ? (i = [a], o = l) : l == o && i.push(a);
     }
-    let o = [];
-    for (let s of r) {
-      let l = n[s], c = {
+    let s = [];
+    for (let a of i) {
+      let l = r[a], c = {
         distance: l[0],
-        start: s - e.length - l[1],
+        start: a - e.length - l[1],
         //simplification of startPos = endPos − (needleLength + insertions − deletions)
-        end: s
+        end: a
       };
-      o.push(c);
+      s.push(c);
     }
-    return o;
+    return s;
   }
 }
-function T(i, e) {
-  return new M().getMatches(i, e);
+function T(n, e) {
+  return new I().getMatches(n, e);
 }
-function b(i, e) {
-  const t = T(i, e);
-  let n;
-  for (const s of t)
-    (n === void 0 || s.distance < n.distance) && (n = s);
-  const r = Math.max(n.start, 0), a = Math.min(Math.max(n.end, r), e.length);
-  return { value: e.slice(r, a), start: r, end: a, distance: n.distance };
+function x(n, e) {
+  const t = T(n, e);
+  let r;
+  for (const a of t)
+    (r === void 0 || a.distance < r.distance) && (r = a);
+  const i = Math.max(r.start, 0), o = Math.min(Math.max(r.end, i), e.length);
+  return { value: e.slice(i, o), start: i, end: o, distance: r.distance };
 }
-function I(i, e, t) {
-  const n = i.textContent ?? "";
-  if (!Number.isInteger(e) || !Number.isInteger(t) || e < 0 || e >= t || t > n.length)
-    throw new RangeError(
-      `Invalid range [${e}, ${t}) for text length ${n.length}`
+const y = `(function(){"use strict";class h{getEditDistances(s,i){var t=new Array(i.length+1).fill([0,0]);for(let e=0;e<s.length;e++){let r=[[e+1,0]];for(let l=0;l<i.length;l++){let n=s[e]!=i[l],a=t[l+1][0]+1,o=r[l][0]+1,m=t[l][0]+n,u=Math.min(a,Math.min(o,m)),f=[u,t[l][1]];a===u?f[1]=t[l+1][1]-1:o===u&&(f[1]=r[l][1]+1),r.push(f)}t=r}return t}getMatches(s,i){let t=this.getEditDistances(s,i),e=[0],r=t[0][0];for(let n=1;n<t.length;n++){let a=t[n][0];a<r?(e=[n],r=a):a==r&&e.push(n)}let l=[];for(let n of e){let a=t[n],o={distance:a[0],start:n-s.length-a[1],end:n};l.push(o)}return l}}function g(c,s){return new h().getMatches(c,s)}function d(c,s){const i=g(c,s);let t;for(const n of i)(t===void 0||n.distance<t.distance)&&(t=n);const e=Math.max(t.start,0),r=Math.min(Math.max(t.end,e),s.length);return{value:s.slice(e,r),start:e,end:r,distance:t.distance}}self.addEventListener("message",c=>{const{id:s,query:i,source:t}=c.data;try{self.postMessage({id:s,result:d(i,t)})}catch(e){self.postMessage({id:s,error:e instanceof Error?e.message:String(e)})}})})();
+`, E = typeof self < "u" && self.Blob && new Blob(["(self.URL || self.webkitURL).revokeObjectURL(self.location.href);", y], { type: "text/javascript;charset=utf-8" });
+function W(n) {
+  let e;
+  try {
+    if (e = E && (self.URL || self.webkitURL).createObjectURL(E), !e) throw "";
+    const t = new Worker(e, {
+      name: n?.name
+    });
+    return t.addEventListener("error", () => {
+      (self.URL || self.webkitURL).revokeObjectURL(e);
+    }), t;
+  } catch {
+    return new Worker(
+      "data:text/javascript;charset=utf-8," + encodeURIComponent(y),
+      {
+        name: n?.name
+      }
     );
-  const r = i.ownerDocument, a = r.createTreeWalker(
-    i,
-    r.defaultView.NodeFilter.SHOW_TEXT
-  );
-  let o = 0, s = null, l = 0, c = null, d = 0;
-  for (let h = a.nextNode(); h; h = a.nextNode()) {
-    const g = o + h.data.length;
-    if (s === null && e >= o && e < g && (s = h, l = e - o), c === null && t > o && t <= g && (c = h, d = t - o), s && c)
-      break;
-    o = g;
   }
-  if (!s || !c)
+}
+let u, S = 0, p = !1, M = "sync";
+const h = /* @__PURE__ */ new Map();
+function H(n) {
+  for (const { reject: e } of h.values())
+    e(n);
+  h.clear();
+}
+function b(n) {
+  p = !0, u && (u.terminate(), u = void 0), H(n);
+}
+function C() {
+  if (!(p || typeof Worker > "u")) {
+    if (u) return u;
+    try {
+      u = new W();
+    } catch {
+      p = !0;
+      return;
+    }
+    return u.addEventListener("message", (n) => {
+      const e = h.get(n.data?.id);
+      e && (h.delete(n.data.id), n.data.error ? e.reject(new Error(n.data.error)) : e.resolve(n.data.result));
+    }), u.addEventListener("error", (n) => {
+      b(n.error ?? new Error(n.message || "Worker matcher failed."));
+    }), u.addEventListener("messageerror", () => {
+      b(new Error("Worker matcher could not deserialize a message."));
+    }), u;
+  }
+}
+function O(n, e) {
+  const t = C();
+  if (!t) return;
+  const r = S++;
+  return new Promise((i, o) => {
+    h.set(r, { resolve: i, reject: o });
+    try {
+      t.postMessage({ id: r, query: n, source: e });
+    } catch (s) {
+      h.delete(r), o(s);
+    }
+  });
+}
+function D() {
+  return M;
+}
+async function U(n, e) {
+  const t = O(n, e);
+  if (t)
+    try {
+      const r = await t;
+      return M = "worker", r;
+    } catch (r) {
+      b(r);
+    }
+  return M = "sync", x(n, e);
+}
+function j(n, e, t) {
+  const r = n.textContent ?? "";
+  if (!Number.isInteger(e) || !Number.isInteger(t) || e < 0 || e >= t || t > r.length)
+    throw new RangeError(
+      `Invalid range [${e}, ${t}) for text length ${r.length}`
+    );
+  const i = n.ownerDocument, o = i.createTreeWalker(
+    n,
+    i.defaultView.NodeFilter.SHOW_TEXT
+  );
+  let s = 0, a = null, l = 0, c = null, g = 0;
+  for (let d = o.nextNode(); d; d = o.nextNode()) {
+    const m = s + d.data.length;
+    if (a === null && e >= s && e < m && (a = d, l = e - s), c === null && t > s && t <= m && (c = d, g = t - s), a && c)
+      break;
+    s = m;
+  }
+  if (!a || !c)
     throw new Error(
       "Could not map offsets to the DOM. The DOM may have changed."
     );
-  const u = r.createRange();
-  return u.setStart(s, l), u.setEnd(c, d), u;
+  const f = i.createRange();
+  return f.setStart(a, l), f.setEnd(c, g), f;
 }
-const f = "website-highlighter", w = `${f}:response`, m = 500;
-let y = 0;
-function H(i) {
-  return new Promise((e) => globalThis.setTimeout(e, i));
+const w = "website-highlighter", k = `${w}:response`, R = 500;
+let N = 0;
+function $(n) {
+  return new Promise((e) => globalThis.setTimeout(e, n));
 }
-function S(i, e) {
-  const t = i.ownerDocument?.defaultView ?? window;
-  return t.MutationObserver ? new Promise((n) => {
-    let r;
-    const a = new t.MutationObserver(() => {
-      t.clearTimeout(r), a.disconnect(), n(!0);
+function q(n, e) {
+  const t = n.ownerDocument?.defaultView ?? window;
+  return t.MutationObserver ? new Promise((r) => {
+    let i;
+    const o = new t.MutationObserver(() => {
+      t.clearTimeout(i), o.disconnect(), r(!0);
     });
-    r = t.setTimeout(() => {
-      a.disconnect(), n(!1);
-    }, e), a.observe(i, {
+    i = t.setTimeout(() => {
+      o.disconnect(), r(!1);
+    }, e), o.observe(n, {
       childList: !0,
       characterData: !0,
       subtree: !0
     });
-  }) : H(e).then(() => !1);
+  }) : $(e).then(() => !1);
 }
-function x(i, e, t) {
-  const n = Math.max(i.length, e.length);
-  return n === 0 ? 1 : (n - t) / n;
+function P(n, e, t) {
+  const r = Math.max(n.length, e.length);
+  return r === 0 ? 1 : (r - t) / r;
 }
-function p(i, e) {
-  const t = e.textContent ?? "", { start: n, end: r, value: a, distance: o } = b(i, t), s = e.ownerDocument?.defaultView ?? window;
-  if (!s.CSS?.highlights || !s.Highlight) throw new Error("This browser does not support the CSS Custom Highlight API.");
+async function L(n, e) {
+  const t = e.textContent ?? "", r = e.ownerDocument?.defaultView ?? window;
+  if (!r.CSS?.highlights || !r.Highlight) throw new Error("This browser does not support the CSS Custom Highlight API.");
+  const { start: i, end: o, value: s, distance: a } = await U(n, t);
   return {
     haystack: t,
-    range: n < r ? I(e, n, r) : null,
-    value: a,
-    view: s,
-    score: x(i, a, o)
+    range: i < o ? j(e, i, o) : null,
+    value: s,
+    view: r,
+    score: P(n, s, a)
   };
 }
-function E({ range: i, value: e, view: t }) {
-  if (!i) throw new Error("Could not find text to highlight.");
-  return t.CSS.highlights.set(f, new t.Highlight(i)), { range: i, value: e };
+function v({ range: n, value: e, view: t }) {
+  if (!n) throw new Error("Could not find text to highlight.");
+  return t.CSS.highlights.set(w, new t.Highlight(n)), { range: n, value: e };
 }
-async function v(i, e, t, n, r) {
-  let a = 0;
+async function _(n, e, t, r, i) {
+  let o = 0;
   for (; ; ) {
-    const o = p(i, e);
-    if (o.score >= t) return E(o);
-    for (; a < n; ) {
-      const s = await S(e, r);
-      if (a += 1, s) break;
+    const s = await L(n, e);
+    if (s.score >= t) return v(s);
+    for (; o < r; ) {
+      const a = await q(e, i);
+      if (o += 1, a) break;
     }
-    if (a >= n) throw new Error(`Could not find "${i}" with threshold ${t}. Best match was "${o.value}".`);
+    if (o >= r) throw new Error(`Could not find "${n}" with threshold ${t}. Best match was "${s.value}".`);
   }
 }
-function C(i, {
+function A() {
+  return D();
+}
+async function z(n, {
   root: e = document.body,
   threshold: t = 0,
-  retries: n = 6,
-  retryInterval: r = m
+  retries: r = 6,
+  retryInterval: i = R
 } = {}) {
-  return t > 0 ? v(i, e, t, n, r) : E(p(i, e));
+  return t > 0 ? _(n, e, t, r, i) : v(await L(n, e));
 }
-function N(i, e, t = "*") {
-  if (!i?.contentWindow) throw new TypeError("Expected an iframe with a contentWindow");
-  const n = `${Date.now()}-${y++}`, r = i.contentWindow;
-  let a;
-  function o() {
-    r.postMessage({
-      type: f,
-      id: n,
+function F(n, e, t = "*") {
+  if (!n?.contentWindow) throw new TypeError("Expected an iframe with a contentWindow");
+  const r = `${Date.now()}-${N++}`, i = n.contentWindow;
+  let o;
+  function s() {
+    i.postMessage({
+      type: w,
+      id: r,
       text: e
     }, t);
   }
-  function s(l) {
-    l.source === r && l.data?.type === w && l.data.id === n && (window.clearInterval(a), window.removeEventListener("message", s));
+  function a(l) {
+    l.source === i && l.data?.type === k && l.data.id === r && (window.clearInterval(o), window.removeEventListener("message", a));
   }
-  window.addEventListener("message", s), o(), a = window.setInterval(o, m);
+  window.addEventListener("message", a), s(), o = window.setInterval(s, R);
 }
 if (typeof window < "u") {
-  let i = function(t) {
+  let n = function(t) {
     return t.origin === "null" ? "*" : t.origin;
   }, e = function(t) {
     t.source?.postMessage({
-      type: w,
+      type: k,
       id: t.data.id
-    }, i(t));
+    }, n(t));
   };
   window.addEventListener("message", (t) => {
-    t.data?.type === f && (e(t), C(t.data.text, { threshold: 0.9 }).catch((n) => console.error(n)));
+    t.data?.type === w && (e(t), z(t.data.text, { threshold: 0.9 }).catch((r) => console.error(r)));
   });
 }
 export {
-  C as default,
-  N as highlightInIframe
+  z as default,
+  A as getMatcherMode,
+  F as highlightInIframe
 };

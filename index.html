@@ -295,7 +295,7 @@
     </main>
 
     <script type="module">
-      import WebsiteHighlighter, { highlightInIframe } from './index.js'
+      import WebsiteHighlighter, { getMatcherMode, highlightInIframe } from './index.js'
 
       const form = document.querySelector('#search-form')
       const query = document.querySelector('#query')
@@ -369,7 +369,7 @@
             </div>
 
             <script type="module">
-              import WebsiteHighlighter from "/index.js"
+              import WebsiteHighlighter, { getMatcherMode } from "/index.js"
 
               const fixture = document.querySelector("#fixture")
               const status = document.querySelector("#status")
@@ -429,7 +429,7 @@
                     retryInterval
                   })
                   const elapsed = Math.round(performance.now() - startedAt)
-                  const message = \`Iframe matched after \${elapsed}ms: "\${range.toString()}"\`
+                  const message = \`Iframe matched after \${elapsed}ms via \${getMatcherMode()}: "\${range.toString()}"\`
                   status.textContent = message
                   postStatus(event, id, { ok: true, message })
                 } catch (error) {
@@ -448,16 +448,16 @@
         </html>
       `
 
-      function runHighlight() {
+      async function runHighlight() {
         if (!('highlights' in CSS) || !('Highlight' in window)) {
           status.textContent = 'This browser does not support the CSS Custom Highlight API.'
           return
         }
 
         try {
-          const { range } = WebsiteHighlighter(query.value, { root: fixture })
+          const { range } = await WebsiteHighlighter(query.value, { root: fixture })
           highlightInIframe(fixtureFrame, query.value)
-          status.textContent = `Matched: "${range.toString()}"`
+          status.textContent = `Matched via ${getMatcherMode()}: "${range.toString()}"`
         } catch (error) {
           CSS.highlights.delete('website-highlighter')
           status.textContent = error.message
@@ -531,7 +531,7 @@
             retryInterval
           })
           const elapsed = Math.round(performance.now() - startedAt)
-          asyncStatus.textContent = `Matched after ${elapsed}ms: "${range.toString()}"`
+          asyncStatus.textContent = `Matched after ${elapsed}ms via ${getMatcherMode()}: "${range.toString()}"`
         } catch (error) {
           asyncStatus.textContent = error.message
         }
