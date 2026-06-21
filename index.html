@@ -37,19 +37,59 @@
         margin-bottom: 24px;
       }
 
+      .test-panel {
+        margin: 32px 0 0;
+        padding: 20px 0 0;
+        border-top: 1px solid #c9d0ce;
+      }
+
+      .test-panel h2 {
+        margin: 0 0 14px;
+        font-size: 1.25rem;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      #async-form {
+        display: grid;
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: #34403f;
+        font-size: 0.95rem;
+      }
+
       input,
-      button {
+      button,
+      select,
+      textarea {
         border: 1px solid #9aa7a7;
         border-radius: 6px;
         font: inherit;
       }
 
-      input {
+      input,
+      select,
+      textarea {
         flex: 1;
         min-width: 0;
         padding: 10px 12px;
         background: #fff;
         color: #1d2527;
+      }
+
+      textarea {
+        min-height: 82px;
+        resize: vertical;
       }
 
       button {
@@ -59,7 +99,8 @@
         cursor: pointer;
       }
 
-      article {
+      article,
+      #async-fixture {
         padding-top: 4px;
         font-size: 1.05rem;
       }
@@ -74,9 +115,20 @@
         background: #fff;
       }
 
+      #async-fixture-frame {
+        min-height: 390px;
+      }
+
       #status {
         min-height: 1.5em;
         margin: 0 0 18px;
+        color: #586463;
+      }
+
+      #async-status,
+      #async-iframe-status {
+        min-height: 1.5em;
+        margin: 0 0 14px;
         color: #586463;
       }
 
@@ -88,6 +140,10 @@
       @media (max-width: 560px) {
         form {
           flex-direction: column;
+        }
+
+        .controls {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -122,6 +178,68 @@
           text ranges during development.
         </p>
       </article>
+
+      <section class="test-panel" aria-labelledby="async-test-title">
+        <h2 id="async-test-title">Delayed DOM Update Test</h2>
+
+        <form id="async-form">
+          <div class="controls">
+            <label>
+              Search text
+              <input
+                id="async-query"
+                value="observer triggered highlight"
+                autocomplete="off"
+              />
+            </label>
+
+            <label>
+              Delay
+              <input id="async-delay" type="number" min="0" step="1" value="1200" />
+            </label>
+
+            <label>
+              Retry interval
+              <input id="async-interval" type="number" min="1" step="1" value="3000" />
+            </label>
+
+            <label>
+              Retries
+              <input id="async-retries" type="number" min="1" step="1" value="3" />
+            </label>
+
+            <label>
+              Update
+              <select id="async-update-mode">
+                <option value="append">Append paragraph</option>
+                <option value="replace">Replace fixture</option>
+                <option value="text">Change text node</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            DOM update text
+            <textarea id="async-update-text">A delayed update adds the observer triggered highlight phrase after the highlighter starts waiting.</textarea>
+          </label>
+
+          <button type="submit">Run Delayed Test</button>
+        </form>
+
+        <p id="async-status" role="status"></p>
+
+        <div id="async-fixture">
+          <p id="async-placeholder">
+            This fixture starts without the requested phrase.
+          </p>
+        </div>
+
+        <iframe
+          id="async-fixture-frame"
+          title="Delayed iframe DOM update fixture"
+        ></iframe>
+        <p id="async-iframe-status" role="status"></p>
+      </section>
 
       <iframe
         id="fixture-frame"
@@ -184,6 +302,151 @@
       const fixture = document.querySelector('#fixture')
       const fixtureFrame = document.querySelector('#fixture-frame')
       const status = document.querySelector('#status')
+      const asyncForm = document.querySelector('#async-form')
+      const asyncQuery = document.querySelector('#async-query')
+      const asyncDelay = document.querySelector('#async-delay')
+      const asyncInterval = document.querySelector('#async-interval')
+      const asyncRetries = document.querySelector('#async-retries')
+      const asyncUpdateMode = document.querySelector('#async-update-mode')
+      const asyncUpdateText = document.querySelector('#async-update-text')
+      const asyncFixture = document.querySelector('#async-fixture')
+      const asyncStatus = document.querySelector('#async-status')
+      const asyncFixtureFrame = document.querySelector('#async-fixture-frame')
+      const asyncIframeStatus = document.querySelector('#async-iframe-status')
+
+      let asyncTimer
+      let asyncIframeReady = false
+      let currentAsyncIframeRequestId = null
+      let nextAsyncIframeRequestId = 0
+
+      asyncFixtureFrame.addEventListener('load', () => {
+        asyncIframeReady = true
+        asyncIframeStatus.textContent = 'Iframe fixture ready.'
+      })
+
+      asyncFixtureFrame.srcdoc = `
+        <!doctype html>
+        <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <style>
+              :root {
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                line-height: 1.5;
+              }
+
+              body {
+                margin: 0;
+                padding: 22px;
+                color: #1d2527;
+              }
+
+              h2 {
+                margin: 0 0 12px;
+                font-size: 1.25rem;
+              }
+
+              p {
+                margin: 0 0 12px;
+              }
+
+              #status {
+                min-height: 1.5em;
+                color: #586463;
+              }
+
+              ::highlight(website-highlighter) {
+                background: #f6d85f;
+                color: #111;
+              }
+            </style>
+          </head>
+          <body>
+            <h2>Delayed Iframe Fixture</h2>
+            <p id="status">Waiting for a delayed test request from the parent page.</p>
+            <div id="fixture">
+              <p id="placeholder">This iframe fixture starts without the requested phrase.</p>
+            </div>
+
+            <script type="module">
+              import WebsiteHighlighter from "/index.js"
+
+              const fixture = document.querySelector("#fixture")
+              const status = document.querySelector("#status")
+              let timer
+
+              function resetFixture() {
+                window.clearTimeout(timer)
+                CSS.highlights.delete("website-highlighter")
+                const paragraph = document.createElement("p")
+                paragraph.id = "placeholder"
+                paragraph.textContent = "This iframe fixture starts without the requested phrase."
+                fixture.replaceChildren(paragraph)
+              }
+
+              function applyUpdate(text, mode) {
+                if (mode === "replace") {
+                  const paragraph = document.createElement("p")
+                  paragraph.textContent = text
+                  fixture.replaceChildren(paragraph)
+                  return
+                }
+
+                if (mode === "text") {
+                  fixture.querySelector("#placeholder").textContent = text
+                  return
+                }
+
+                const paragraph = document.createElement("p")
+                paragraph.textContent = text
+                fixture.append(paragraph)
+              }
+
+              function postStatus(event, id, result) {
+                event.source?.postMessage({
+                  type: "delayed-dom-update-test:status",
+                  id,
+                  ...result
+                }, "*")
+              }
+
+              async function runDelayedTest(event) {
+                const { id, query, delay, retryInterval, retries, updateMode, updateText } = event.data
+                const startedAt = performance.now()
+
+                resetFixture()
+                status.textContent = \`Waiting for DOM update in \${delay}ms...\`
+
+                timer = window.setTimeout(() => {
+                  applyUpdate(updateText, updateMode)
+                }, delay)
+
+                try {
+                  const { range } = await WebsiteHighlighter(query, {
+                    root: fixture,
+                    threshold: 0.9,
+                    retries,
+                    retryInterval
+                  })
+                  const elapsed = Math.round(performance.now() - startedAt)
+                  const message = \`Iframe matched after \${elapsed}ms: "\${range.toString()}"\`
+                  status.textContent = message
+                  postStatus(event, id, { ok: true, message })
+                } catch (error) {
+                  status.textContent = error.message
+                  postStatus(event, id, { ok: false, message: error.message })
+                }
+              }
+
+              window.addEventListener("message", (event) => {
+                if (event.data?.type === "delayed-dom-update-test") {
+                  runDelayedTest(event)
+                }
+              })
+            <\/script>
+          </body>
+        </html>
+      `
 
       function runHighlight() {
         if (!('highlights' in CSS) || !('Highlight' in window)) {
@@ -201,9 +464,97 @@
         }
       }
 
+      function resetAsyncFixture() {
+        window.clearTimeout(asyncTimer)
+        CSS.highlights.delete('website-highlighter')
+        const paragraph = document.createElement('p')
+        paragraph.id = 'async-placeholder'
+        paragraph.textContent = 'This fixture starts without the requested phrase.'
+        asyncFixture.replaceChildren(paragraph)
+      }
+
+      function applyAsyncUpdate(text, mode) {
+        if (mode === 'replace') {
+          const paragraph = document.createElement('p')
+          paragraph.textContent = text
+          asyncFixture.replaceChildren(paragraph)
+          return
+        }
+
+        if (mode === 'text') {
+          asyncFixture.querySelector('#async-placeholder').textContent = text
+          return
+        }
+
+        const paragraph = document.createElement('p')
+        paragraph.textContent = text
+        asyncFixture.append(paragraph)
+      }
+
+      async function runAsyncTest() {
+        resetAsyncFixture()
+
+        const delay = Number(asyncDelay.value)
+        const retries = Number(asyncRetries.value)
+        const retryInterval = Number(asyncInterval.value)
+        const startedAt = performance.now()
+        const iframeRequestId = `${Date.now()}-${nextAsyncIframeRequestId++}`
+        currentAsyncIframeRequestId = iframeRequestId
+
+        asyncStatus.textContent = `Waiting for DOM update in ${delay}ms...`
+        asyncIframeStatus.textContent = asyncIframeReady
+          ? `Iframe waiting for DOM update in ${delay}ms...`
+          : 'Iframe fixture is still loading. Run the delayed test again once it is ready.'
+
+        if (asyncIframeReady) {
+          asyncFixtureFrame.contentWindow?.postMessage({
+            type: 'delayed-dom-update-test',
+            id: iframeRequestId,
+            query: asyncQuery.value,
+            delay,
+            retryInterval,
+            retries,
+            updateMode: asyncUpdateMode.value,
+            updateText: asyncUpdateText.value
+          }, '*')
+        }
+
+        asyncTimer = window.setTimeout(() => {
+          applyAsyncUpdate(asyncUpdateText.value, asyncUpdateMode.value)
+        }, delay)
+
+        try {
+          const { range } = await WebsiteHighlighter(asyncQuery.value, {
+            root: asyncFixture,
+            threshold: 0.9,
+            retries,
+            retryInterval
+          })
+          const elapsed = Math.round(performance.now() - startedAt)
+          asyncStatus.textContent = `Matched after ${elapsed}ms: "${range.toString()}"`
+        } catch (error) {
+          asyncStatus.textContent = error.message
+        }
+      }
+
       form.addEventListener('submit', (event) => {
         event.preventDefault()
         runHighlight()
+      })
+
+      asyncForm.addEventListener('submit', (event) => {
+        event.preventDefault()
+        runAsyncTest()
+      })
+
+      window.addEventListener('message', (event) => {
+        if (
+          event.source === asyncFixtureFrame.contentWindow &&
+          event.data?.type === 'delayed-dom-update-test:status' &&
+          event.data.id === currentAsyncIframeRequestId
+        ) {
+          asyncIframeStatus.textContent = event.data.message
+        }
       })
 
       fixtureFrame.addEventListener('load', runHighlight)

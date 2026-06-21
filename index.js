@@ -11,6 +11,34 @@ function delay(ms) {
   return new Promise((resolve) => globalThis.setTimeout(resolve, ms))
 }
 
+function waitForTextMutation(root, timeout) {
+  const view = root.ownerDocument?.defaultView ?? window
+
+  if (!view.MutationObserver) {
+    return delay(timeout).then(() => false)
+  }
+
+  return new Promise((resolve) => {
+    let timeoutId
+    const observer = new view.MutationObserver(() => {
+      view.clearTimeout(timeoutId)
+      observer.disconnect()
+      resolve(true)
+    })
+
+    timeoutId = view.setTimeout(() => {
+      observer.disconnect()
+      resolve(false)
+    }, timeout)
+
+    observer.observe(root, {
+      childList: true,
+      characterData: true,
+      subtree: true
+    })
+  })
+}
+
 function matchScore(text, value, distance) {
   const length = Math.max(text.length, value.length)
 
@@ -54,9 +82,9 @@ async function retryUntilThreshold(text, root, threshold, retries, retryInterval
     if (match.score >= threshold) return applyHighlight(match)
 
     while (attempt < retries) {
-      await delay(retryInterval)
+      const didChange = await waitForTextMutation(root, retryInterval)
       attempt += 1
-      if ((root.textContent ?? '') !== match.haystack) break
+      if (didChange) break
     }
 
     if (attempt >= retries) throw new Error(`Could not find "${text}" with threshold ${threshold}. Best match was "${match.value}".`)
