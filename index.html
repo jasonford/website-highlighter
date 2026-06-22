@@ -369,6 +369,101 @@
           '
         ></iframe>
       </section>
+
+      <section class="test-panel" aria-labelledby="parent-highlight-test-title">
+        <h2 id="parent-highlight-test-title">Iframe-To-Parent Highlight Test</h2>
+
+        <p>
+          The parent requested highlight target appears in this parent document
+          so the child iframe can ask its parent window to highlight it.
+        </p>
+
+        <iframe
+          id="parent-request-frame"
+          title="Iframe to parent highlight fixture"
+          srcdoc='
+            <!doctype html>
+            <html lang="en">
+              <head>
+                <meta charset="UTF-8" />
+                <style>
+                  :root {
+                    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                    line-height: 1.5;
+                  }
+
+                  body {
+                    margin: 0;
+                    padding: 22px;
+                    color: #1d2527;
+                  }
+
+                  h2 {
+                    margin: 0 0 12px;
+                    font-size: 1.25rem;
+                  }
+
+                  form {
+                    display: grid;
+                    gap: 10px;
+                    margin: 0 0 12px;
+                  }
+
+                  input,
+                  button {
+                    border: 1px solid #9aa7a7;
+                    border-radius: 6px;
+                    font: inherit;
+                    padding: 10px 12px;
+                  }
+
+                  button {
+                    background: #24594d;
+                    color: #fff;
+                    cursor: pointer;
+                  }
+
+                  #status {
+                    min-height: 1.5em;
+                    color: #586463;
+                  }
+                </style>
+              </head>
+              <body>
+                <h2>Parent Highlight Request</h2>
+                <form id="parent-request-form">
+                  <input
+                    id="parent-request-query"
+                    value="parent requested highlight target"
+                    autocomplete="off"
+                    aria-label="Parent search text"
+                  />
+                  <button type="submit">Highlight Parent</button>
+                </form>
+                <p id="status" role="status"></p>
+                <script type="module">
+                  import { highlightInParent } from "/index.js"
+
+                  const form = document.querySelector("#parent-request-form")
+                  const query = document.querySelector("#parent-request-query")
+                  const status = document.querySelector("#status")
+
+                  form.addEventListener("submit", (event) => {
+                    event.preventDefault()
+
+                    try {
+                      highlightInParent(query.value)
+                      status.textContent = `Sent parent highlight request for "${query.value}".`
+                    } catch (error) {
+                      status.textContent = error.message
+                    }
+                  })
+                </script>
+              </body>
+            </html>
+          '
+        ></iframe>
+      </section>
     </main>
 
     <script type="module">

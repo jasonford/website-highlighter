@@ -195,6 +195,40 @@ export function highlightInIframe(iframe, text, targetOrigin='*') {
   retryTimer = window.setInterval(postHighlightRequest, RETRY_INTERVAL_MS)
 }
 
+export function highlightInParent(text, targetOrigin='*') {
+  if (typeof window === 'undefined' || !window.parent || window.parent === window) {
+    throw new TypeError('Expected to be called from a child iframe')
+  }
+
+  const requestId = `${Date.now()}-${nextIframeRequestId++}`
+  const targetWindow = window.parent
+  let retryTimer
+
+  function postHighlightRequest() {
+    targetWindow.postMessage({
+      type: HIGHLIGHT_NAME,
+      id: requestId,
+      text
+    }, targetOrigin)
+  }
+
+  function handleResponse(event) {
+    if (
+      event.source === targetWindow &&
+      event.data?.type === HIGHLIGHT_RESPONSE_TYPE &&
+      event.data.id === requestId
+    ) {
+      window.clearInterval(retryTimer)
+      window.removeEventListener('message', handleResponse)
+    }
+  }
+
+  window.addEventListener('message', handleResponse)
+
+  postHighlightRequest()
+  retryTimer = window.setInterval(postHighlightRequest, RETRY_INTERVAL_MS)
+}
+
 if (typeof window !== 'undefined') {
   function responseOriginFor(event) {
     return event.origin === 'null' ? '*' : event.origin

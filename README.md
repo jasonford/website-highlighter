@@ -79,6 +79,16 @@ You can pass a stricter `targetOrigin` as the third argument:
 highlightInIframe(iframe, 'text inside the iframe', 'https://example.com')
 ```
 
+Child iframes can send a highlight request to their parent window with `highlightInParent`:
+
+```js
+import { highlightInParent } from 'website-highlighter'
+
+highlightInParent('text inside the parent page')
+```
+
+The parent page must load this module too so it can receive the request.
+
 ## API
 
 ### `WebsiteHighlighter(text, options)`
@@ -103,6 +113,13 @@ Posts a highlight request to an iframe.
 
 - `iframe`: target iframe element.
 - `text`: string to search for inside the iframe document.
+- `targetOrigin`: optional `postMessage` target origin. Defaults to `'*'`.
+
+### `highlightInParent(text, targetOrigin)`
+
+Posts a highlight request from a child iframe to its parent window.
+
+- `text`: string to search for inside the parent document.
 - `targetOrigin`: optional `postMessage` target origin. Defaults to `'*'`.
 
 ## Browser Support
