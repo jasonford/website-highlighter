@@ -49,6 +49,37 @@ function matchScore(text, value, distance) {
   return (length - distance) / length
 }
 
+function rangeStartElement(range) {
+  const { startContainer } = range
+
+  if (startContainer.nodeType === startContainer.ELEMENT_NODE) {
+    return startContainer
+  }
+
+  return startContainer.parentElement
+}
+
+function scrollRangeIntoView(range, view) {
+  const firstRect = range.getClientRects()[0]
+
+  if (!firstRect) {
+    rangeStartElement(range)?.scrollIntoView({
+      block: 'center',
+      inline: 'nearest',
+      behavior: 'smooth'
+    })
+    return
+  }
+
+  const viewportHeight = view.innerHeight || view.document.documentElement.clientHeight
+  const targetTop = firstRect.top + view.scrollY - (viewportHeight / 2) + (firstRect.height / 2)
+
+  view.scrollTo({
+    top: Math.max(0, targetTop),
+    behavior: 'smooth'
+  })
+}
+
 async function findMatch(text, root) {
   const haystack = root.textContent ?? ''
   const view = root.ownerDocument?.defaultView ?? window
@@ -70,6 +101,7 @@ function applyHighlight({ range, value, view }) {
   if (!range) throw new Error('Could not find text to highlight.')
 
   view.CSS.highlights.set(HIGHLIGHT_NAME, new view.Highlight(range))
+  scrollRangeIntoView(range, view)
 
   return { range, value }
 }

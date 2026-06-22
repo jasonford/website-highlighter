@@ -1,6 +1,6 @@
 {
   "name": "website-highlighter",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Fuzzy text matching and highlighting for DOM content.",
   "type": "module",
   "main": "./dist/website-highlighter.umd.cjs",

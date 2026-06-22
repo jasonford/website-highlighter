@@ -55,7 +55,9 @@
         margin-bottom: 16px;
       }
 
-      #async-form {
+      #async-form,
+      #scroll-form,
+      #iframe-form {
         display: grid;
         gap: 14px;
         margin-bottom: 14px;
@@ -100,9 +102,19 @@
       }
 
       article,
-      #async-fixture {
+      #async-fixture,
+      #scroll-fixture {
         padding-top: 4px;
         font-size: 1.05rem;
+      }
+
+      #scroll-fixture {
+        min-height: 145vh;
+      }
+
+      .scroll-spacer {
+        min-height: 100vh;
+        border-top: 1px dashed #c9d0ce;
       }
 
       iframe {
@@ -126,7 +138,9 @@
       }
 
       #async-status,
-      #async-iframe-status {
+      #async-iframe-status,
+      #scroll-status,
+      #iframe-status {
         min-height: 1.5em;
         margin: 0 0 14px;
         color: #586463;
@@ -241,57 +255,110 @@
         <p id="async-iframe-status" role="status"></p>
       </section>
 
-      <iframe
-        id="fixture-frame"
-        title="Iframe highlight fixture"
-        srcdoc='
-          <!doctype html>
-          <html lang="en">
-            <head>
-              <meta charset="UTF-8" />
-              <style>
-                :root {
-                  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-                  line-height: 1.5;
-                }
+      <section class="test-panel" aria-labelledby="scroll-test-title">
+        <h2 id="scroll-test-title">Scroll-To Highlight Test</h2>
 
-                body {
-                  margin: 0;
-                  padding: 22px;
-                  color: #1d2527;
-                }
+        <form id="scroll-form">
+          <label>
+            Search text
+            <input
+              id="scroll-query"
+              value="scroll target phrase"
+              autocomplete="off"
+            />
+          </label>
 
-                h2 {
-                  margin: 0 0 12px;
-                  font-size: 1.25rem;
-                }
+          <button type="submit">Run Scroll Test</button>
+        </form>
 
-                p {
-                  margin: 0 0 12px;
-                }
+        <article id="scroll-fixture">
+          <p>
+            The requested phrase is deliberately placed below a viewport-height
+            spacer after the button, so it starts off-screen when the test can
+            be run.
+          </p>
 
-                ::highlight(website-highlighter) {
-                  background: #f6d85f;
-                  color: #111;
-                }
-              </style>
-            </head>
-            <body>
-              <h2>Iframe Fixture</h2>
-              <p>
-                This iframe imports the library and waits for a website-highlighter
-                message from the parent page before highlighting its own
-                document body.
-              </p>
-              <p>
-                Search for phrases like iframe imports, parent page, or own
-                document body to test cross-document highlighting.
-              </p>
-              <script type="module" src="/index.js"></script>
-            </body>
-          </html>
-        '
-      ></iframe>
+          <div class="scroll-spacer" aria-hidden="true"></div>
+
+          <p>
+            The scroll target phrase appears here near the bottom of this
+            fixture.
+          </p>
+        </article>
+
+        <p id="scroll-status" role="status"></p>
+      </section>
+
+      <section class="test-panel" aria-labelledby="iframe-test-title">
+        <h2 id="iframe-test-title">Iframe Highlight Test</h2>
+
+        <form id="iframe-form">
+          <label>
+            Search text
+            <input
+              id="iframe-query"
+              value="iframe imports"
+              autocomplete="off"
+            />
+          </label>
+
+          <button type="submit">Highlight Iframe</button>
+        </form>
+
+        <p id="iframe-status" role="status"></p>
+
+        <iframe
+          id="fixture-frame"
+          title="Iframe highlight fixture"
+          srcdoc='
+            <!doctype html>
+            <html lang="en">
+              <head>
+                <meta charset="UTF-8" />
+                <style>
+                  :root {
+                    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                    line-height: 1.5;
+                  }
+
+                  body {
+                    margin: 0;
+                    padding: 22px;
+                    color: #1d2527;
+                  }
+
+                  h2 {
+                    margin: 0 0 12px;
+                    font-size: 1.25rem;
+                  }
+
+                  p {
+                    margin: 0 0 12px;
+                  }
+
+                  ::highlight(website-highlighter) {
+                    background: #f6d85f;
+                    color: #111;
+                  }
+                </style>
+              </head>
+              <body>
+                <h2>Iframe Fixture</h2>
+                <p>
+                  This iframe imports the library and waits for a website-highlighter
+                  message from the parent page before highlighting its own
+                  document body.
+                </p>
+                <p>
+                  Search for phrases like iframe imports, parent page, or own
+                  document body to test cross-document highlighting.
+                </p>
+                <script type="module" src="/index.js"></script>
+              </body>
+            </html>
+          '
+        ></iframe>
+      </section>
     </main>
 
     <script type="module">
@@ -313,6 +380,13 @@
       const asyncStatus = document.querySelector('#async-status')
       const asyncFixtureFrame = document.querySelector('#async-fixture-frame')
       const asyncIframeStatus = document.querySelector('#async-iframe-status')
+      const scrollForm = document.querySelector('#scroll-form')
+      const scrollQuery = document.querySelector('#scroll-query')
+      const scrollFixture = document.querySelector('#scroll-fixture')
+      const scrollStatus = document.querySelector('#scroll-status')
+      const iframeForm = document.querySelector('#iframe-form')
+      const iframeQuery = document.querySelector('#iframe-query')
+      const iframeStatus = document.querySelector('#iframe-status')
 
       let asyncTimer
       let asyncIframeReady = false
@@ -456,12 +530,21 @@
 
         try {
           const { range } = await WebsiteHighlighter(query.value, { root: fixture })
-          highlightInIframe(fixtureFrame, query.value)
           status.textContent = `Matched via ${getMatcherMode()}: "${range.toString()}"`
         } catch (error) {
           CSS.highlights.delete('website-highlighter')
           status.textContent = error.message
         }
+      }
+
+      function runIframeHighlight() {
+        if (!('highlights' in CSS) || !('Highlight' in window)) {
+          iframeStatus.textContent = 'This browser does not support the CSS Custom Highlight API.'
+          return
+        }
+
+        highlightInIframe(fixtureFrame, iframeQuery.value)
+        iframeStatus.textContent = `Sent iframe highlight request for "${iframeQuery.value}".`
       }
 
       function resetAsyncFixture() {
@@ -537,6 +620,54 @@
         }
       }
 
+      function waitForScrollSettle() {
+        return new Promise((resolve) => {
+          let lastScrollY = window.scrollY
+          let stableFrames = 0
+
+          function tick() {
+            if (Math.abs(window.scrollY - lastScrollY) < 1) {
+              stableFrames += 1
+            } else {
+              stableFrames = 0
+              lastScrollY = window.scrollY
+            }
+
+            if (stableFrames >= 8) {
+              resolve()
+              return
+            }
+
+            requestAnimationFrame(tick)
+          }
+
+          requestAnimationFrame(tick)
+        })
+      }
+
+      async function runScrollTest() {
+        if (!('highlights' in CSS) || !('Highlight' in window)) {
+          scrollStatus.textContent = 'This browser does not support the CSS Custom Highlight API.'
+          return
+        }
+
+        const beforeScrollY = Math.round(window.scrollY)
+
+        try {
+          const { range } = await WebsiteHighlighter(scrollQuery.value, { root: scrollFixture })
+          await waitForScrollSettle()
+
+          const afterScrollY = Math.round(window.scrollY)
+          const rect = range.getBoundingClientRect()
+          const moved = afterScrollY > beforeScrollY
+          const visible = rect.top >= 0 && rect.bottom <= window.innerHeight
+
+          scrollStatus.textContent = `Scroll ${moved ? 'moved' : 'did not move'} from ${beforeScrollY}px to ${afterScrollY}px; highlighted text is ${visible ? 'visible' : 'not fully visible'}.`
+        } catch (error) {
+          scrollStatus.textContent = error.message
+        }
+      }
+
       form.addEventListener('submit', (event) => {
         event.preventDefault()
         runHighlight()
@@ -545,6 +676,16 @@
       asyncForm.addEventListener('submit', (event) => {
         event.preventDefault()
         runAsyncTest()
+      })
+
+      scrollForm.addEventListener('submit', (event) => {
+        event.preventDefault()
+        runScrollTest()
+      })
+
+      iframeForm.addEventListener('submit', (event) => {
+        event.preventDefault()
+        runIframeHighlight()
       })
 
       window.addEventListener('message', (event) => {
@@ -557,7 +698,7 @@
         }
       })
 
-      fixtureFrame.addEventListener('load', runHighlight)
+      fixtureFrame.addEventListener('load', runIframeHighlight)
 
       runHighlight()
     </script>

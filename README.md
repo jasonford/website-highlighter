@@ -83,7 +83,7 @@ highlightInIframe(iframe, 'text inside the iframe', 'https://example.com')
 
 ### `WebsiteHighlighter(text, options)`
 
-Finds the best fuzzy match for `text`, applies the `website-highlighter` custom highlight, and resolves to `{ range, value }`.
+Finds the best fuzzy match for `text`, applies the `website-highlighter` custom highlight, scrolls the matched range into view, and resolves to `{ range, value }`.
 
 - `text`: string to search for.
 - `options.root`: optional DOM node to search. Defaults to `document.body`.
