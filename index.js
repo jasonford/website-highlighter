@@ -4,6 +4,7 @@ import rangeFromTextContentOffsets from './range-from-offsets.js'
 const HIGHLIGHT_NAME = 'website-highlighter'
 const HIGHLIGHT_RESPONSE_TYPE = `${HIGHLIGHT_NAME}:response`
 const RETRY_INTERVAL_MS = 500
+const HIGHLIGHT_STYLE_ID = `${HIGHLIGHT_NAME}-default-style`
 
 let nextIframeRequestId = 0
 
@@ -80,6 +81,26 @@ function scrollRangeIntoView(range, view) {
   })
 }
 
+function ensureHighlightStyle(view) {
+  const { document } = view
+
+  if (!document || document.getElementById(HIGHLIGHT_STYLE_ID)) {
+    return
+  }
+
+  const style = document.createElement('style')
+  style.id = HIGHLIGHT_STYLE_ID
+  style.textContent = `
+::highlight(${HIGHLIGHT_NAME}) {
+  background-color: Highlight;
+  color: HighlightText;
+}
+`
+
+  const parent = document.head || document.documentElement
+  parent.insertBefore(style, parent.firstChild)
+}
+
 async function findMatch(text, root) {
   const haystack = root.textContent ?? ''
   const view = root.ownerDocument?.defaultView ?? window
@@ -100,6 +121,7 @@ async function findMatch(text, root) {
 function applyHighlight({ range, value, view }) {
   if (!range) throw new Error('Could not find text to highlight.')
 
+  ensureHighlightStyle(view)
   view.CSS.highlights.set(HIGHLIGHT_NAME, new view.Highlight(range))
   scrollRangeIntoView(range, view)
 

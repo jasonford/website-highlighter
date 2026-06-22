@@ -108,6 +108,12 @@
         font-size: 1.05rem;
       }
 
+      .contrast-fixture {
+        background: #1d2527;
+        color: #1d2527;
+        padding: 8px;
+      }
+
       #scroll-fixture {
         min-height: 145vh;
       }
@@ -147,8 +153,8 @@
       }
 
       ::highlight(website-highlighter) {
-        background: #f6d85f;
-        color: #111;
+        background-color: Highlight;
+        color: HighlightText;
       }
 
       @media (max-width: 560px) {
@@ -190,6 +196,10 @@
           Try misspellings like "custm hilite api", "fuzzy substrng", or
           "document markp" to check that the matching logic still finds useful
           text ranges during development.
+        </p>
+        <p class="contrast-fixture">
+          The low contrast highlight target checks that default system
+          highlight colors remain visible when page colors are hostile.
         </p>
       </article>
 
@@ -337,8 +347,8 @@
                   }
 
                   ::highlight(website-highlighter) {
-                    background: #f6d85f;
-                    color: #111;
+                    background-color: Highlight;
+                    color: HighlightText;
                   }
                 </style>
               </head>
@@ -430,8 +440,8 @@
               }
 
               ::highlight(website-highlighter) {
-                background: #f6d85f;
-                color: #111;
+                background-color: Highlight;
+                color: HighlightText;
               }
             </style>
           </head>

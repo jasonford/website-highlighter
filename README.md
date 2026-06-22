@@ -24,12 +24,12 @@ console.log(range.toString())
 console.log(value)
 ```
 
-Add styles for the highlight name:
+The library adds a default highlight style to the target document using system highlight colors. You can override it with your own styles for the highlight name:
 
 ```css
 ::highlight(website-highlighter) {
-  background: #f6d85f;
-  color: #111;
+  background-color: Highlight;
+  color: HighlightText;
 }
 ```
 
